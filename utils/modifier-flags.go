@@ -4,11 +4,15 @@ import (
 	"strings"
 )
 
+var modNames = map[uint64]string{
+	MOD_SHIFT: "Shift",
+	MOD_CTRL:  "Ctrl",
+	MOD_OPT:   "Opt",
+	MOD_CMD:   "Cmd",
+}
+
 type ModStroke struct {
-	Shift bool
-	Ctrl  bool
-	Opt   bool
-	Cmd   bool
+	State map[uint64]bool
 }
 
 type ModFlags struct {
@@ -23,10 +27,9 @@ func NewModFlags() *ModFlags {
 func (m *ModFlags) Update(flags uint64) {
 	m.flags = flags
 
-	m.stroke.Shift = m.Pressed(MOD_SHIFT)
-	m.stroke.Ctrl = m.Pressed(MOD_CTRL)
-	m.stroke.Opt = m.Pressed(MOD_OPT)
-	m.stroke.Cmd = m.Pressed(MOD_CMD)
+	for modKey := range m.stroke.State {
+		m.stroke.State[modKey] = m.flags&modKey != 0
+	}
 }
 
 func (m *ModFlags) Pressed(modKey uint64) bool {
@@ -35,18 +38,13 @@ func (m *ModFlags) Pressed(modKey uint64) bool {
 
 func (m *ModFlags) Str() string {
 	var parts []string
-	if m.stroke.Shift {
-		parts = append(parts, "Shift")
+
+	for modKey, pressed := range m.stroke.State {
+		if pressed {
+			parts = append(parts, modNames[modKey])
+		}
 	}
-	if m.stroke.Ctrl {
-		parts = append(parts, "Ctrl")
-	}
-	if m.stroke.Opt {
-		parts = append(parts, "Opt")
-	}
-	if m.stroke.Cmd {
-		parts = append(parts, "Cmd")
-	}
+
 	if len(parts) == 0 {
 		return "None"
 	}
