@@ -2,61 +2,57 @@ package main
 
 import (
 	"fmt"
-	"unsafe"
+	"strings"
 
 	"github.com/progrium/macdriver/cocoa"
 	"github.com/progrium/macdriver/core"
 	"github.com/progrium/macdriver/objc"
 )
 
+const characterToListen = " "
+
 func main() {
     cocoa.TerminateAfterWindowsClose = false
     app := cocoa.NSApp_WithDidLaunch(func(n objc.Object) {
+        // Initialize the menu bar item with a starting title of "0".
         item := cocoa.NSStatusBar_System().StatusItemWithLength(cocoa.NSVariableStatusItemLength)
         item.Retain()
-        item.Button().SetTitle("0") // Start with 0
+        item.Button().SetTitle("0")
 
-        setupGlobalEventMonitorForControlKeyPress(func() {
-            currentTitle := item.Button().Title()
-            var count int
-            fmt.Sscanf(currentTitle, "%d", &count)
-            count++
-            core.Dispatch(func() {
-                item.Button().SetTitle(fmt.Sprintf("%d", count))
-            })
+        setupEventMonitor(func(e cocoa.NSEvent) {
+            characters, err := e.Characters()
+            if err != nil {
+                fmt.Println(err)
+            }
+
+            if len(characters) > 0 {
+                fmt.Println(characters)
+            }
+
+            if strings.Contains(characters, characterToListen) {
+                core.Dispatch(func() {
+                    currentTitle := item.Button().Title()
+                    var count int
+                    fmt.Sscanf(currentTitle, "%d", &count)
+                    count++
+                    item.Button().SetTitle(fmt.Sprintf("%d", count))
+                })
+            }
         })
     })
 
     app.Run()
 }
 
-func setupGlobalEventMonitorForControlKeyPress(onControlKeyPress func()) {
-    var mask uint64 = cocoa.NSEventMaskFlagsChanged
+func setupEventMonitor(callback func(e cocoa.NSEvent)) {
+    var mask uint64 = cocoa.NSEventMaskKeyDown
     ch := make(chan cocoa.NSEvent)
+
     cocoa.NSEvent_GlobalMonitorMatchingMask(mask, ch)
 
     go func() {
-        var controlKeyDown bool
         for e := range ch {
-            flags := uint64(e.Get("modifierFlags").Uint())
-            controlFlag := uint64(1 << 18) // Control key flag
-            
-            // Check if the Control key flag is present in the flags
-            if flags&controlFlag == controlFlag {
-                if !controlKeyDown { // Control key was pressed down
-                    controlKeyDown = true
-                    onControlKeyPress()
-                }
-            } else {
-                if controlKeyDown { // Control key was released
-                    controlKeyDown = false
-                }
-            }
+            callback(e)
         }
     }()
-}
-
-// ModifierFlags returns the modifier flags of an NSEvent.
-func (e cocoa.NSEvent) ModifierFlags() uint64 {
-    return *(*uint64)(unsafe.Pointer(e.Get("modifierFlags").Pointer()))
 }
