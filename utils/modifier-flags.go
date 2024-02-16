@@ -4,38 +4,52 @@ import (
 	"strings"
 )
 
+type ModStroke struct {
+	Shift bool
+	Ctrl  bool
+	Opt   bool
+	Cmd   bool
+}
+
 type ModFlags struct {
-	modFlags uint64
+	flags  uint64
+	stroke ModStroke
 }
 
 func NewModFlags() *ModFlags {
 	return &ModFlags{}
 }
 
-func (m *ModFlags) Update(modFlags uint64) {
-	m.modFlags = modFlags
+func (m *ModFlags) Update(flags uint64) {
+	m.flags = flags
+
+	m.stroke.Shift = m.Pressed(MOD_SHIFT)
+	m.stroke.Ctrl = m.Pressed(MOD_CTRL)
+	m.stroke.Opt = m.Pressed(MOD_OPT)
+	m.stroke.Cmd = m.Pressed(MOD_CMD)
 }
 
 func (m *ModFlags) Pressed(modKey uint64) bool {
-	return m.modFlags&modKey != 0
+	return m.flags&modKey != 0
 }
 
 func (m *ModFlags) Str() string {
 	var parts []string
-	if m.Pressed(MOD_SHIFT) {
+	if m.stroke.Shift {
 		parts = append(parts, "Shift")
 	}
-	if m.Pressed(MOD_CTRL) {
-		parts = append(parts, "Control")
+	if m.stroke.Ctrl {
+		parts = append(parts, "Ctrl")
 	}
-	if m.Pressed(MOD_OPT) {
-		parts = append(parts, "Option")
+	if m.stroke.Opt {
+		parts = append(parts, "Opt")
 	}
-	if m.Pressed(MOD_CMD) {
-		parts = append(parts, "Command")
+	if m.stroke.Cmd {
+		parts = append(parts, "Cmd")
 	}
 	if len(parts) == 0 {
 		return "None"
 	}
+
 	return strings.Join(parts, "+")
 }
