@@ -21,7 +21,21 @@ type ModFlags struct {
 }
 
 func NewModFlags() *ModFlags {
-	return &ModFlags{}
+	return &ModFlags{
+		stroke: ModStroke{
+			State: map[uint64]bool{
+				MOD_SHIFT: false,
+				MOD_CTRL:  false,
+				MOD_OPT:   false,
+				MOD_CMD:   false,
+			},
+		},
+	}
+}
+
+func (m *ModFlags) Pressed(modKey uint64) bool {
+	pressed, exists := m.stroke.State[modKey]
+	return pressed && exists
 }
 
 func (m *ModFlags) Update(flags uint64) {
@@ -30,10 +44,6 @@ func (m *ModFlags) Update(flags uint64) {
 	for modKey := range m.stroke.State {
 		m.stroke.State[modKey] = m.flags&modKey != 0
 	}
-}
-
-func (m *ModFlags) Pressed(modKey uint64) bool {
-	return m.flags&modKey != 0
 }
 
 func (m *ModFlags) Str() string {
