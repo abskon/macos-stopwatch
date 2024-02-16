@@ -1,12 +1,7 @@
 package utils
 
-import "strings"
-
-const (
-	ShiftKeyModifier   uint64 = 0x20000
-	ControlKeyModifier uint64 = 0x40000
-	OptionKeyModifier  uint64 = 0x80000
-	CommandKeyModifier uint64 = 0x100000
+import (
+	"strings"
 )
 
 type ModFlags struct {
@@ -27,16 +22,16 @@ func (m *ModFlags) Pressed(modKey uint64) bool {
 
 func (m *ModFlags) Str() string {
 	var parts []string
-	if m.Pressed(ShiftKeyModifier) {
+	if m.Pressed(MOD_SHIFT) {
 		parts = append(parts, "Shift")
 	}
-	if m.Pressed(ControlKeyModifier) {
+	if m.Pressed(MOD_CTRL) {
 		parts = append(parts, "Control")
 	}
-	if m.Pressed(OptionKeyModifier) {
+	if m.Pressed(MOD_OPT) {
 		parts = append(parts, "Option")
 	}
-	if m.Pressed(CommandKeyModifier) {
+	if m.Pressed(MOD_CMD) {
 		parts = append(parts, "Command")
 	}
 	if len(parts) == 0 {

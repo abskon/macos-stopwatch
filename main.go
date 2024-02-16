@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	modFlags := utils.NewModFlags() // modfifer flags manager for shift, ctrl, opt, cmd
+	modFlags := utils.NewModFlags() // manager for shift, ctrl, opt, cmd
 
 	cocoa.TerminateAfterWindowsClose = false
 	app := cocoa.NSApp_WithDidLaunch(func(n objc.Object) {
