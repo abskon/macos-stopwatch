@@ -33,9 +33,21 @@ func NewModFlags() *ModFlags {
 	}
 }
 
-func (m *ModFlags) Pressed(modKey uint64) bool {
+func (m *ModFlags) IsPressed(modKey uint64) bool {
 	pressed, exists := m.stroke.State[modKey]
 	return pressed && exists
+}
+
+func (m *ModFlags) GetPressed() []uint64 {
+	var pressed []uint64
+
+	for modKey, isPressed := range m.stroke.State {
+		if isPressed {
+			pressed = append(pressed, modKey)
+		}
+	}
+
+	return pressed
 }
 
 func (m *ModFlags) Update(flags uint64) {
