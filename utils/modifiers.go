@@ -11,18 +11,18 @@ var modNames = map[uint64]string{
 	MOD_CMD:   "Cmd",
 }
 
-type ModStroke struct {
+type ModSeq struct {
 	State map[uint64]bool
 }
 
-type ModFlags struct {
-	flags  uint64
-	stroke ModStroke
+type Mods struct {
+	mods uint64
+	seq  ModSeq
 }
 
-func NewModFlags() *ModFlags {
-	return &ModFlags{
-		stroke: ModStroke{
+func NewMods() *Mods {
+	return &Mods{
+		seq: ModSeq{
 			State: map[uint64]bool{
 				MOD_SHIFT: false,
 				MOD_CTRL:  false,
@@ -33,15 +33,15 @@ func NewModFlags() *ModFlags {
 	}
 }
 
-func (m *ModFlags) IsPressed(modKey uint64) bool {
-	pressed, exists := m.stroke.State[modKey]
+func (m *Mods) IsPressed(modKey uint64) bool {
+	pressed, exists := m.seq.State[modKey]
 	return pressed && exists
 }
 
-func (m *ModFlags) GetPressed() []uint64 {
+func (m *Mods) GetPressed() []uint64 {
 	var pressed []uint64
 
-	for modKey, isPressed := range m.stroke.State {
+	for modKey, isPressed := range m.seq.State {
 		if isPressed {
 			pressed = append(pressed, modKey)
 		}
@@ -50,18 +50,18 @@ func (m *ModFlags) GetPressed() []uint64 {
 	return pressed
 }
 
-func (m *ModFlags) Update(flags uint64) {
-	m.flags = flags
+func (m *Mods) Update(mods uint64) {
+	m.mods = mods
 
-	for modKey := range m.stroke.State {
-		m.stroke.State[modKey] = m.flags&modKey != 0
+	for modKey := range m.seq.State {
+		m.seq.State[modKey] = m.mods&modKey != 0
 	}
 }
 
-func (m *ModFlags) Str() string {
+func (m *Mods) Str() string {
 	var parts []string
 
-	for modKey, pressed := range m.stroke.State {
+	for modKey, pressed := range m.seq.State {
 		if pressed {
 			parts = append(parts, modNames[modKey])
 		}
