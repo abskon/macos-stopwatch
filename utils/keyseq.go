@@ -28,27 +28,6 @@ func NewKeySeq() *KeySeq {
 	}
 }
 
-func (ks *KeySeq) isPressed(key any) bool {
-	switch k := key.(type) {
-	case uint64:
-		pressed, exists := ks.seq.ModState[k]
-		return pressed && exists
-	case int:
-		return ks.seq.Key == k
-	}
-	return false
-}
-
-func (ks *KeySeq) Pressed(keys ...any) bool {
-	pressed := []any{}
-	for _, key := range keys {
-		if ks.isPressed(key) {
-			pressed = append(pressed, key)
-		}
-	}
-	return len(pressed) == len(keys)
-}
-
 type Mods_Key struct {
 	Mods *uint64
 	Key  *int
@@ -65,6 +44,27 @@ func (ks *KeySeq) Update(mk Mods_Key) {
 	if mk.Key != nil {
 		ks.seq.Key = *mk.Key
 	}
+}
+
+func (ks *KeySeq) Pressed(keys ...any) bool {
+	pressed := []any{}
+	for _, key := range keys {
+		if ks.isPressed(key) {
+			pressed = append(pressed, key)
+		}
+	}
+	return len(pressed) == len(keys)
+}
+
+func (ks *KeySeq) isPressed(key any) bool {
+	switch k := key.(type) {
+	case uint64:
+		pressed, exists := ks.seq.ModState[k]
+		return pressed && exists
+	case int:
+		return ks.seq.Key == k
+	}
+	return false
 }
 
 func (ks *KeySeq) Str() string {

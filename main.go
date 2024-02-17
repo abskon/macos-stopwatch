@@ -39,8 +39,8 @@ func main() {
 		quit := make(chan struct{})
 
 		go func() {
-			ticker := time.NewTicker(11 * time.Millisecond)
-			defer ticker.Stop()
+			ticker := time.NewTicker(11 * time.Millisecond) // refresh ui every 11ms (90fps)
+			defer ticker.Stop()                             // ui is also updated when state changes
 
 			for {
 				select {
@@ -105,7 +105,7 @@ func updateState(s chan<- State, ks *u.KeySeq, e cocoa.NSEvent) {
 	// fmt.Println(ks.Str())
 
 	for state, keys := range KEYS {
-		if ks.ArePressed(keys...) {
+		if ks.Pressed(keys...) {
 			s <- state
 		}
 	}
