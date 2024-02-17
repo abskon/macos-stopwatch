@@ -33,12 +33,13 @@ func main() {
 	app := cocoa.NSApp_WithDidLaunch(func(n objc.Object) {
 		item := cocoa.NSStatusBar_System().StatusItemWithLength(cocoa.NSVariableStatusItemLength)
 		item.Retain()
-		item.Button().SetTitle("Ready")
+		item.Button().SetFont_(customFont("Menlo", 14))
+		item.Button().SetTitle(timer.Str())
 
 		quit := make(chan struct{})
 
 		go func() {
-			ticker := time.NewTicker(1 * time.Millisecond)
+			ticker := time.NewTicker(11 * time.Millisecond)
 			defer ticker.Stop()
 
 			for {
@@ -127,4 +128,11 @@ func eventMonitor(callback func(e cocoa.NSEvent)) {
 			callback(e)
 		}
 	}()
+}
+
+func customFont(name string, size int32) cocoa.NSFontRef {
+	nsFontClass := objc.GetClass("NSFont")
+	sizeNum := core.NSNumber_WithInt(size)
+	font := nsFontClass.Send("fontWithName:size:", core.NSString_FromString(name), sizeNum)
+	return cocoa.NSFont_fromRef(font)
 }
