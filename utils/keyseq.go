@@ -6,7 +6,7 @@ import (
 
 type Seq struct {
 	ModState map[uint64]bool
-	Key      int
+	Keys     []int
 }
 
 type KeySeq struct {
@@ -23,7 +23,7 @@ func NewKeySeq() *KeySeq {
 				MOD_OPT:   false,
 				MOD_CMD:   false,
 			},
-			Key: -1,
+			Keys: []int{},
 		},
 	}
 }
@@ -34,7 +34,11 @@ func (ks *KeySeq) IsPressed(key any) bool {
 		pressed, exists := ks.seq.ModState[k]
 		return pressed && exists
 	case int:
-		return ks.seq.Key == k
+		for _, key := range ks.seq.Keys {
+			if key == k {
+				return true
+			}
+		}
 	}
 	return false
 }
@@ -49,22 +53,31 @@ func (ks *KeySeq) ArePressed(keys ...any) bool {
 	return len(pressed) == len(keys)
 }
 
-type UpdateOpts struct {
+type ModsKey struct {
 	Mods *uint64
 	Key  *int
 }
 
-// TODO: Update Key when key up (main.go)
-func (ks *KeySeq) Update(opts UpdateOpts) {
-	if opts.Mods != nil {
-		ks.mods = *opts.Mods
+func (ks *KeySeq) Update(mk ModsKey) {
+	if mk.Mods != nil {
+		ks.mods = *mk.Mods
 		for modKey := range ks.seq.ModState {
 			ks.seq.ModState[modKey] = ks.mods&modKey != 0
 		}
 	}
 
-	if opts.Key != nil {
-		ks.seq.Key = *opts.Key
+	if mk.Key != nil {
+		inKeys := false
+		for i, key := range ks.seq.Keys {
+			if key == *mk.Key {
+				ks.seq.Keys = append(ks.seq.Keys[:i], ks.seq.Keys[i+1:]...)
+				inKeys = true
+				break
+			}
+		}
+		if !inKeys {
+			ks.seq.Keys = append(ks.seq.Keys, *mk.Key)
+		}
 	}
 }
 

@@ -26,7 +26,7 @@ const (
 
 func main() {
 	state := make(chan State, 1)
-	mods := u.NewKeySeq()
+	ks := u.NewKeySeq()
 	timer := u.NewTimer()
 
 	cocoa.TerminateAfterWindowsClose = false
@@ -70,7 +70,7 @@ func main() {
 		}()
 
 		eventMonitor(func(e cocoa.NSEvent) {
-			updateState(state, mods, e)
+			updateState(state, ks, e)
 		})
 		setupMenu(item, quit)
 	})
