@@ -14,7 +14,7 @@ var KEYS map[State]any = map[State]any{ // MOD uint64, KEY int
 	Ready: u.MOD_SHIFT,
 	Start: u.MOD_CMD,
 	Stop:  u.KEY_SPACE,
-}
+} // TODO: handle case when same key is used for different states
 
 type State int
 
@@ -26,7 +26,7 @@ const (
 
 func main() {
 	state := make(chan State, 1)
-	mods := u.NewMods()
+	mods := u.NewKeySeq()
 	timer := u.NewTimer()
 
 	cocoa.TerminateAfterWindowsClose = false
@@ -88,7 +88,7 @@ func setupMenu(item cocoa.NSStatusItem, quit chan<- struct{}) {
 	item.SetMenu(menu)
 }
 
-func updateState(s chan<- State, m *u.Mods, e cocoa.NSEvent) {
+func updateState(s chan<- State, ks *u.KeySeq, e cocoa.NSEvent) {
 	var k any
 
 	switch e.Type() {
@@ -96,9 +96,9 @@ func updateState(s chan<- State, m *u.Mods, e cocoa.NSEvent) {
 		keyCode, _ := e.KeyCode()
 		k = keyCode // int64
 	case cocoa.NSEventTypeFlagsChanged:
-		_modFlags := e.Get("modifierFlags").Uint()
-		m.Update(_modFlags)
-		k = m // *ModFlags
+		mods := e.Get("modifierFlags").Uint()
+		ks.Update(u.UpdateOpts{Mods: &mods})
+		k = ks // *ModFlags
 	}
 
 	for targetState, key := range KEYS {
@@ -109,7 +109,7 @@ func updateState(s chan<- State, m *u.Mods, e cocoa.NSEvent) {
 				return
 			}
 		case uint64:
-			if modFlags, ok := k.(*u.Mods); ok && modFlags.IsPressed(key) {
+			if modFlags, ok := k.(*u.KeySeq); ok && modFlags.IsPressed(key) {
 				s <- targetState
 				return
 			}
@@ -118,7 +118,7 @@ func updateState(s chan<- State, m *u.Mods, e cocoa.NSEvent) {
 }
 
 func eventMonitor(callback func(e cocoa.NSEvent)) {
-	var mask uint64 = cocoa.NSEventMaskKeyDown | cocoa.NSEventMaskFlagsChanged
+	var mask uint64 = cocoa.NSEventMaskKeyDown | cocoa.NSEventMaskFlagsChanged | cocoa.NSEventMaskKeyUp
 	ch := make(chan cocoa.NSEvent)
 
 	cocoa.NSEvent_GlobalMonitorMatchingMask(mask, ch)
