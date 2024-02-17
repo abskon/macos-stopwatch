@@ -9,9 +9,9 @@ import (
 	"github.com/progrium/macdriver/objc"
 )
 
-// key/mod list: utils/const.go
+// key/mod list: utils/utils.go
 var KEYS map[State][]any = map[State][]any{ // MOD uint64, KEY int
-	Ready: {u.MOD_SHIFT},
+	Ready: {u.MOD_SHIFT, u.MOD_CTRL, u.MOD_OPT},
 	Start: {u.MOD_CMD},
 	Stop:  {u.KEY_SPACE},
 }
