@@ -1,28 +1,29 @@
 package main
 
 import (
-	"github.com/altsko/speedrun-timer/utils"
+	u "github.com/altsko/speedrun-timer/utils"
 	"github.com/progrium/macdriver/cocoa"
 	"github.com/progrium/macdriver/core"
 	"github.com/progrium/macdriver/objc"
 )
 
+// key/mod list: utils/const.go
 var KEYS map[State]any = map[State]any{ // MOD uint64, KEY int
-	Ready:    utils.MOD_SHIFT,
-	Working:  utils.MOD_CMD,
-	Finished: utils.KEY_SPACE,
+	Ready: u.MOD_SHIFT,
+	Start: u.MOD_CMD,
+	Stop:  u.KEY_SPACE,
 }
 
 type State int
 
 const (
 	Ready State = iota
-	Working
-	Finished
+	Start
+	Stop
 )
 
 func main() {
-	modFlags := utils.NewMods() // manager for shift, ctrl, opt, cmd
+	modFlags := u.NewMods() // manager for shift, ctrl, opt, cmd
 	state := make(chan State, 1)
 
 	cocoa.TerminateAfterWindowsClose = false
@@ -37,10 +38,10 @@ func main() {
 				switch newState {
 				case Ready:
 					newTitle = "Ready"
-				case Working:
-					newTitle = "Working"
-				case Finished:
-					newTitle = "Finished"
+				case Start:
+					newTitle = "Start"
+				case Stop:
+					newTitle = "Stop"
 				}
 
 				core.Dispatch(func() {
@@ -56,7 +57,7 @@ func main() {
 	app.Run()
 }
 
-func updateState(s chan<- State, m *utils.Mods, e cocoa.NSEvent) {
+func updateState(s chan<- State, m *u.Mods, e cocoa.NSEvent) {
 	var k any
 
 	switch e.Type() {
@@ -77,7 +78,7 @@ func updateState(s chan<- State, m *utils.Mods, e cocoa.NSEvent) {
 				return
 			}
 		case uint64:
-			if modFlags, ok := k.(*utils.Mods); ok && modFlags.IsPressed(key) {
+			if modFlags, ok := k.(*u.Mods); ok && modFlags.IsPressed(key) {
 				s <- targetState
 				return
 			}
