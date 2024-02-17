@@ -53,12 +53,12 @@ func (ks *KeySeq) ArePressed(keys ...any) bool {
 	return len(pressed) == len(keys)
 }
 
-type ModsKey struct {
+type Mods_Key struct {
 	Mods *uint64
 	Key  *int
 }
 
-func (ks *KeySeq) Update(mk ModsKey) {
+func (ks *KeySeq) Update(mk Mods_Key) {
 	if mk.Mods != nil {
 		ks.mods = *mk.Mods
 		for modKey := range ks.seq.ModState {

@@ -89,32 +89,16 @@ func setupMenu(item cocoa.NSStatusItem, quit chan<- struct{}) {
 }
 
 func updateState(s chan<- State, ks *u.KeySeq, e cocoa.NSEvent) {
-	var k any
-
 	switch e.Type() {
-	case cocoa.NSEventTypeKeyDown:
-		keyCode, _ := e.KeyCode()
-		k = keyCode // int64
+	case cocoa.NSEventTypeKeyDown | cocoa.NSEventTypeKeyUp:
+		key, _ := e.KeyCode()
+		keyInt := int(key)
+		ks.Update(u.Mods_Key{Key: &keyInt})
 	case cocoa.NSEventTypeFlagsChanged:
-		mods := e.Get("modifierFlags").Uint()
-		ks.Update(u.UpdateOpts{Mods: &mods})
-		k = ks // *ModFlags
+		mod := e.Get("modifierFlags").Uint()
+		ks.Update(u.Mods_Key{Mods: &mod})
 	}
-
-	for targetState, key := range KEYS {
-		switch key := key.(type) {
-		case int:
-			if keyCode, ok := k.(int64); ok && keyCode == int64(key) {
-				s <- targetState
-				return
-			}
-		case uint64:
-			if modFlags, ok := k.(*u.KeySeq); ok && modFlags.IsPressed(key) {
-				s <- targetState
-				return
-			}
-		}
-	}
+	//TODO
 }
 
 func eventMonitor(callback func(e cocoa.NSEvent)) {
