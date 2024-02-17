@@ -10,11 +10,11 @@ import (
 )
 
 // key/mod list: utils/const.go
-var KEYS map[State]any = map[State]any{ // MOD uint64, KEY int
-	Ready: u.MOD_SHIFT,
-	Start: u.MOD_CMD,
-	Stop:  u.KEY_SPACE,
-} // TODO: handle case when same key is used for different states
+var KEYS map[State][]any = map[State][]any{ // MOD uint64, KEY int
+	Ready: {u.MOD_SHIFT},
+	Start: {u.MOD_CMD},
+	Stop:  {u.KEY_SPACE},
+}
 
 type State int
 
@@ -90,15 +90,25 @@ func setupMenu(item cocoa.NSStatusItem, quit chan<- struct{}) {
 
 func updateState(s chan<- State, ks *u.KeySeq, e cocoa.NSEvent) {
 	switch e.Type() {
-	case cocoa.NSEventTypeKeyDown | cocoa.NSEventTypeKeyUp:
+	case cocoa.NSEventTypeKeyDown:
 		key, _ := e.KeyCode()
 		keyInt := int(key)
 		ks.Update(u.Mods_Key{Key: &keyInt})
 	case cocoa.NSEventTypeFlagsChanged:
 		mod := e.Get("modifierFlags").Uint()
 		ks.Update(u.Mods_Key{Mods: &mod})
+	case cocoa.NSEventTypeKeyUp:
+		none := u.KEY_NONE
+		ks.Update(u.Mods_Key{Key: &none})
 	}
-	//TODO
+
+	// fmt.Println(ks.Str())
+
+	for state, keys := range KEYS {
+		if ks.ArePressed(keys...) {
+			s <- state
+		}
+	}
 }
 
 func eventMonitor(callback func(e cocoa.NSEvent)) {

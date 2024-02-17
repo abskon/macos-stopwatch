@@ -8,6 +8,7 @@ var modNames = map[uint64]string{
 }
 
 var keyNames = map[int]string{
+	KEY_NONE:           "None",
 	KEY_A:              "A",
 	KEY_S:              "S",
 	KEY_D:              "D",
@@ -118,6 +119,7 @@ const (
 	MOD_OPT   uint64 = 0x80000
 	MOD_CMD   uint64 = 0x100000
 
+	KEY_NONE         int = -1
 	KEY_A            int = 0
 	KEY_S            int = 1
 	KEY_D            int = 2

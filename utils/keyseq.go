@@ -6,7 +6,7 @@ import (
 
 type Seq struct {
 	ModState map[uint64]bool
-	Keys     []int
+	Key      int
 }
 
 type KeySeq struct {
@@ -23,7 +23,7 @@ func NewKeySeq() *KeySeq {
 				MOD_OPT:   false,
 				MOD_CMD:   false,
 			},
-			Keys: []int{},
+			Key: KEY_NONE,
 		},
 	}
 }
@@ -34,11 +34,7 @@ func (ks *KeySeq) IsPressed(key any) bool {
 		pressed, exists := ks.seq.ModState[k]
 		return pressed && exists
 	case int:
-		for _, key := range ks.seq.Keys {
-			if key == k {
-				return true
-			}
-		}
+		return ks.seq.Key == k
 	}
 	return false
 }
@@ -67,31 +63,35 @@ func (ks *KeySeq) Update(mk Mods_Key) {
 	}
 
 	if mk.Key != nil {
-		inKeys := false
-		for i, key := range ks.seq.Keys {
-			if key == *mk.Key {
-				ks.seq.Keys = append(ks.seq.Keys[:i], ks.seq.Keys[i+1:]...)
-				inKeys = true
-				break
-			}
-		}
-		if !inKeys {
-			ks.seq.Keys = append(ks.seq.Keys, *mk.Key)
-		}
+		ks.seq.Key = *mk.Key
 	}
 }
 
 func (ks *KeySeq) Str() string {
 	var parts []string
 
-	for modKey, pressed := range ks.seq.ModState {
-		if pressed {
-			parts = append(parts, modNames[modKey])
+	// ugly code, but always sorted by Shift, Ctrl, Opt, Cmd
+	if pressed, exists := ks.seq.ModState[MOD_SHIFT]; exists && pressed {
+		parts = append(parts, modNames[MOD_SHIFT])
+	}
+	if pressed, exists := ks.seq.ModState[MOD_CTRL]; exists && pressed {
+		parts = append(parts, modNames[MOD_CTRL])
+	}
+	if pressed, exists := ks.seq.ModState[MOD_OPT]; exists && pressed {
+		parts = append(parts, modNames[MOD_OPT])
+	}
+	if pressed, exists := ks.seq.ModState[MOD_CMD]; exists && pressed {
+		parts = append(parts, modNames[MOD_CMD])
+	}
+
+	if ks.seq.Key != KEY_NONE {
+		if keyName, exists := keyNames[ks.seq.Key]; exists {
+			parts = append(parts, keyName)
 		}
 	}
 
 	if len(parts) == 0 {
-		return "None"
+		return keyNames[KEY_NONE]
 	}
 
 	return strings.Join(parts, "+")
