@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	u "github.com/altsko/speedrun-timer/utils"
 	"github.com/progrium/macdriver/cocoa"
 	"github.com/progrium/macdriver/core"
@@ -23,8 +25,9 @@ const (
 )
 
 func main() {
-	modFlags := u.NewMods() // manager for shift, ctrl, opt, cmd
 	state := make(chan State, 1)
+	mods := u.NewMods()
+	timer := u.NewTimer()
 
 	cocoa.TerminateAfterWindowsClose = false
 	app := cocoa.NSApp_WithDidLaunch(func(n objc.Object) {
@@ -32,29 +35,56 @@ func main() {
 		item.Retain()
 		item.Button().SetTitle("Ready")
 
-		go func() {
-			for newState := range state {
-				var newTitle string
-				switch newState {
-				case Ready:
-					newTitle = "Ready"
-				case Start:
-					newTitle = "Start"
-				case Stop:
-					newTitle = "Stop"
-				}
+		quit := make(chan struct{})
 
-				core.Dispatch(func() {
-					item.Button().SetTitle(newTitle)
-				})
+		go func() {
+			ticker := time.NewTicker(1 * time.Millisecond)
+			defer ticker.Stop()
+
+			for {
+				select {
+				case <-ticker.C:
+					if timer.IsRunning() {
+						core.Dispatch(func() {
+							item.Button().SetTitle(timer.Str())
+						})
+					}
+				case newState := <-state:
+					switch newState {
+					case Ready:
+						timer.Reset()
+					case Start:
+						timer.Start()
+					case Stop:
+						timer.Stop()
+					}
+
+					core.Dispatch(func() {
+						item.Button().SetTitle(timer.Str())
+					})
+				case <-quit:
+					return
+				}
 			}
 		}()
 
 		eventMonitor(func(e cocoa.NSEvent) {
-			updateState(state, modFlags, e)
+			updateState(state, mods, e)
 		})
+		setupMenu(item, quit)
 	})
+
 	app.Run()
+}
+
+func setupMenu(item cocoa.NSStatusItem, quit chan<- struct{}) {
+	menu := cocoa.NSMenu_New()
+	quitItem := cocoa.NSMenuItem_New()
+	quitItem.SetTitle("Quit")
+	quitItem.SetAction(objc.Sel("terminate:"))
+
+	menu.AddItem(quitItem)
+	item.SetMenu(menu)
 }
 
 func updateState(s chan<- State, m *u.Mods, e cocoa.NSEvent) {
