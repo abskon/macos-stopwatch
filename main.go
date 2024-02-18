@@ -12,8 +12,8 @@ import (
 // key/mod list: utils/utils.go
 var KEYS map[State][]any = map[State][]any{ // MOD uint64, KEY int
 	Ready: {u.MOD_SHIFT, u.MOD_CTRL, u.MOD_OPT},
-	Start: {u.MOD_CMD},
-	Stop:  {u.KEY_SPACE},
+	Start: {u.MOD_CMD},   // start timer with a press of cmd
+	Stop:  {u.KEY_SPACE}, // stop timer with a press of space
 }
 
 type State int
@@ -37,7 +37,6 @@ func main() {
 		item.Button().SetTitle(timer.Str())
 
 		quit := make(chan struct{})
-
 		go func() {
 			ticker := time.NewTicker(11 * time.Millisecond) // refresh ui every 11ms (90fps)
 			defer ticker.Stop()                             // ui is also updated when state changes
@@ -72,20 +71,17 @@ func main() {
 		eventMonitor(func(e cocoa.NSEvent) {
 			updateState(state, ks, e)
 		})
-		setupMenu(item, quit)
+
+		menu := cocoa.NSMenu_New()
+		quitItem := cocoa.NSMenuItem_New()
+		quitItem.SetTitle("Quit")
+		quitItem.SetAction(objc.Sel("terminate:"))
+
+		menu.AddItem(quitItem)
+		item.SetMenu(menu)
 	})
 
 	app.Run()
-}
-
-func setupMenu(item cocoa.NSStatusItem, quit chan<- struct{}) {
-	menu := cocoa.NSMenu_New()
-	quitItem := cocoa.NSMenuItem_New()
-	quitItem.SetTitle("Quit")
-	quitItem.SetAction(objc.Sel("terminate:"))
-
-	menu.AddItem(quitItem)
-	item.SetMenu(menu)
 }
 
 func updateState(s chan<- State, ks *u.KeySeq, e cocoa.NSEvent) {
