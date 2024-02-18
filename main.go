@@ -33,7 +33,7 @@ func main() {
 	app := cocoa.NSApp_WithDidLaunch(func(n objc.Object) {
 		item := cocoa.NSStatusBar_System().StatusItemWithLength(cocoa.NSVariableStatusItemLength)
 		item.Retain()
-		item.Button().SetFont_(customFont("Menlo", 14))
+		item.Button().SetFont_(customFont("Menlo", 16))
 		item.Button().SetTitle(timer.Str())
 
 		quit := make(chan struct{})
@@ -124,9 +124,7 @@ func eventMonitor(callback func(e cocoa.NSEvent)) {
 	}()
 }
 
-func customFont(name string, size int32) cocoa.NSFontRef {
-	nsFontClass := objc.GetClass("NSFont")
-	sizeNum := core.NSNumber_WithInt(size)
-	font := nsFontClass.Send("fontWithName:size:", core.NSString_FromString(name), sizeNum)
-	return cocoa.NSFont_fromRef(font)
+func customFont(name string, size float64) cocoa.NSFontRef {
+	nsFontClass := cocoa.NSFont_Init(name, size)
+	return cocoa.NSFont_fromRef(nsFontClass.Send("retain"))
 }
