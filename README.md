@@ -4,6 +4,8 @@ A macOS menu bar stopwatch written in Go with [macdriver](https://github.com/pro
 
 ```bash
 make run
+or
+make build
 ```
 
 ### Todo
