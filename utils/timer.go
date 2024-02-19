@@ -42,8 +42,8 @@ func (sw *Stopwatch) Str() string {
 
 	minutes := int(elapsed.Minutes())
 	seconds := int(elapsed.Seconds()) % 60
-	milliseconds := int(elapsed.Milliseconds()) % 100
-	return fmt.Sprintf("%02d:%02d.%02d", minutes, seconds, milliseconds)
+	milliseconds := int(elapsed.Milliseconds()) % 1000
+	return fmt.Sprintf("%02d:%02d.%03d", minutes, seconds, milliseconds)
 }
 
 func (sw *Stopwatch) IsRunning() bool {

@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 
+	"github.com/altsko/menubar-stopwatch/ui"
 	u "github.com/altsko/menubar-stopwatch/utils"
 	"github.com/progrium/macdriver/cocoa"
 	"github.com/progrium/macdriver/core"
@@ -26,6 +27,8 @@ const (
 )
 
 func main() {
+	fontName := "Jetbrains Mono"
+
 	state := make(chan State, 1)
 	ks := u.NewKeySeq()
 	sw := u.NewStopwatch()
@@ -34,12 +37,14 @@ func main() {
 	app := cocoa.NSApp_WithDidLaunch(func(n objc.Object) {
 		item := cocoa.NSStatusBar_System().StatusItemWithLength(cocoa.NSVariableStatusItemLength)
 		item.Retain()
-		item.Button().SetFont_(customFont("Menlo", 16))
+		item.Button().SetFont_(customFont(fontName, 14))
 		item.Button().SetTitle(sw.Str())
+
+		tb := ui.NewTextBox(sw.Str(), fontName)
 
 		quit := make(chan struct{})
 		go func() {
-			ticker := time.NewTicker(1 * time.Millisecond) // refresh ui every 7ms (143fps)
+			ticker := time.NewTicker(7 * time.Millisecond) // refresh ui every 7ms (143fps)
 			defer ticker.Stop()                            // ui is also updated when state changes
 
 			for {
@@ -48,6 +53,7 @@ func main() {
 					if sw.IsRunning() {
 						core.Dispatch(func() {
 							item.Button().SetTitle(sw.Str())
+							tb.Update(sw.Str())
 						})
 					}
 				case newState := <-state:
@@ -62,6 +68,7 @@ func main() {
 
 					core.Dispatch(func() {
 						item.Button().SetTitle(sw.Str())
+						tb.Update(sw.Str())
 					})
 				case <-quit:
 					return
@@ -83,9 +90,13 @@ func main() {
 		openItem.SetAction(objc.Sel("open:"))
 
 		menu.AddItem(quitItem)
+		menu.AddItem(openItem)
 		item.SetMenu(menu)
-	})
 
+		cocoa.NSApp().SetActivationPolicy(cocoa.NSApplicationActivationPolicyRegular)
+		cocoa.NSApp().ActivateIgnoringOtherApps(true)
+		cocoa.NSApp().Run()
+	})
 	app.Run()
 }
 
