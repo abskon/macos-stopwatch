@@ -1,4 +1,4 @@
-module github.com/altsko/speedrun-timer
+module github.com/altsko/menubar-stopwatch
 
 go 1.22.0
 

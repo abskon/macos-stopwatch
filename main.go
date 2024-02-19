@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	u "github.com/altsko/speedrun-stopwatch/utils"
+	u "github.com/altsko/menubar-stopwatch/utils"
 	"github.com/progrium/macdriver/cocoa"
 	"github.com/progrium/macdriver/core"
 	"github.com/progrium/macdriver/objc"
@@ -77,6 +77,10 @@ func main() {
 		quitItem := cocoa.NSMenuItem_New()
 		quitItem.SetTitle("Quit")
 		quitItem.SetAction(objc.Sel("terminate:"))
+
+		openItem := cocoa.NSMenuItem_New()
+		openItem.SetTitle("Open")
+		openItem.SetAction(objc.Sel("open:"))
 
 		menu.AddItem(quitItem)
 		item.SetMenu(menu)
