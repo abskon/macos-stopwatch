@@ -43,19 +43,6 @@ func main() {
 
 		tb := ui.NewTextBox(sw.Str(), fontName)
 
-		updateUI := func(text string, items ...any) {
-			core.Dispatch(func() {
-				for _, item := range items {
-					switch item := item.(type) {
-					case cocoa.NSStatusBarButton:
-						item.SetTitle(text)
-					case *ui.TextBox:
-						item.SetString(text)
-					}
-				}
-			})
-		}
-
 		quit := make(chan struct{})
 		go func() {
 			ticker := time.NewTicker(7 * time.Millisecond) // refresh ui every 7ms (143fps)
@@ -65,7 +52,10 @@ func main() {
 				select {
 				case <-ticker.C:
 					if sw.IsRunning() {
-						updateUI(sw.Str(), item.Button(), &tb)
+						core.Dispatch(func() {
+							item.Button().SetTitle(sw.Str())
+							tb.SetString(sw.Str())
+						})
 					}
 				case newState := <-state:
 					switch newState {
@@ -77,7 +67,10 @@ func main() {
 						sw.Stop()
 					}
 
-					updateUI(sw.Str(), item.Button(), &tb)
+					core.Dispatch(func() {
+						item.Button().SetTitle(sw.Str())
+						tb.SetString(sw.Str())
+					})
 				case <-quit:
 					return
 				}
