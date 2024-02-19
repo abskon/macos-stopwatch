@@ -40,9 +40,10 @@ func (t *Timer) Str() string {
 		elapsed += time.Since(t.start)
 	}
 
-	seconds := int(elapsed.Seconds())
+	minutes := int(elapsed.Minutes())
+	seconds := int(elapsed.Seconds()) % 60
 	milliseconds := int(elapsed.Milliseconds()) % 1000
-	return fmt.Sprintf("%d.%03d", seconds, milliseconds)
+	return fmt.Sprintf("%02d:%02d.%03d", minutes, seconds, milliseconds)
 }
 
 func (t *Timer) IsRunning() bool {
