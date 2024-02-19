@@ -37,10 +37,24 @@ func main() {
 	app := cocoa.NSApp_WithDidLaunch(func(n objc.Object) {
 		item := cocoa.NSStatusBar_System().StatusItemWithLength(cocoa.NSVariableStatusItemLength)
 		item.Retain()
+
 		item.Button().SetFont_(customFont(fontName, 14))
 		item.Button().SetTitle(sw.Str())
 
 		tb := ui.NewTextBox(sw.Str(), fontName)
+
+		updateUI := func(text string, items ...any) {
+			core.Dispatch(func() {
+				for _, item := range items {
+					switch item := item.(type) {
+					case cocoa.NSStatusBarButton:
+						item.SetTitle(text)
+					case *ui.TextBox:
+						item.SetString(text)
+					}
+				}
+			})
+		}
 
 		quit := make(chan struct{})
 		go func() {
@@ -51,10 +65,7 @@ func main() {
 				select {
 				case <-ticker.C:
 					if sw.IsRunning() {
-						core.Dispatch(func() {
-							item.Button().SetTitle(sw.Str())
-							tb.SetString(sw.Str())
-						})
+						updateUI(sw.Str(), item.Button(), &tb)
 					}
 				case newState := <-state:
 					switch newState {
@@ -66,10 +77,7 @@ func main() {
 						sw.Stop()
 					}
 
-					core.Dispatch(func() {
-						item.Button().SetTitle(sw.Str())
-						tb.SetString(sw.Str())
-					})
+					updateUI(sw.Str(), item.Button(), &tb)
 				case <-quit:
 					return
 				}
