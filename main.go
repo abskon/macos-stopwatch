@@ -43,6 +43,13 @@ func main() {
 
 		tb := ui.NewTextBox(sw.Str(), fontName)
 
+		updateUI := func() {
+			core.Dispatch(func() {
+				item.Button().SetTitle(sw.Str())
+				tb.SetString(sw.Str())
+			})
+		}
+
 		quit := make(chan struct{})
 		go func() {
 			ticker := time.NewTicker(7 * time.Millisecond) // refresh ui every 7ms (143fps)
@@ -52,10 +59,7 @@ func main() {
 				select {
 				case <-ticker.C:
 					if sw.IsRunning() {
-						core.Dispatch(func() {
-							item.Button().SetTitle(sw.Str())
-							tb.SetString(sw.Str())
-						})
+						updateUI()
 					}
 				case newState := <-state:
 					switch newState {
@@ -67,10 +71,7 @@ func main() {
 						sw.Stop()
 					}
 
-					core.Dispatch(func() {
-						item.Button().SetTitle(sw.Str())
-						tb.SetString(sw.Str())
-					})
+					updateUI()
 				case <-quit:
 					return
 				}
