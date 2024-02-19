@@ -5,47 +5,47 @@ import (
 	"time"
 )
 
-type Timer struct {
+type Stopwatch struct {
 	start   time.Time
 	elapsed time.Duration
 	running bool
 }
 
-func NewTimer() *Timer {
-	return &Timer{}
+func NewStopwatch() *Stopwatch {
+	return &Stopwatch{}
 }
 
-func (t *Timer) Start() {
-	if !t.running {
-		t.start = time.Now()
-		t.running = true
+func (sw *Stopwatch) Start() {
+	if !sw.running {
+		sw.start = time.Now()
+		sw.running = true
 	}
 }
 
-func (t *Timer) Stop() {
-	if t.running {
-		t.elapsed += time.Since(t.start)
-		t.running = false
+func (sw *Stopwatch) Stop() {
+	if sw.running {
+		sw.elapsed += time.Since(sw.start)
+		sw.running = false
 	}
 }
 
-func (t *Timer) Reset() {
-	t.elapsed = 0
-	t.running = false
+func (sw *Stopwatch) Reset() {
+	sw.elapsed = 0
+	sw.running = false
 }
 
-func (t *Timer) Str() string {
-	elapsed := t.elapsed
-	if t.running {
-		elapsed += time.Since(t.start)
+func (sw *Stopwatch) Str() string {
+	elapsed := sw.elapsed
+	if sw.running {
+		elapsed += time.Since(sw.start)
 	}
 
 	minutes := int(elapsed.Minutes())
 	seconds := int(elapsed.Seconds()) % 60
-	milliseconds := int(elapsed.Milliseconds()) % 1000
-	return fmt.Sprintf("%02d:%02d.%03d", minutes, seconds, milliseconds)
+	milliseconds := int(elapsed.Milliseconds()) % 100
+	return fmt.Sprintf("%02d:%02d.%02d", minutes, seconds, milliseconds)
 }
 
-func (t *Timer) IsRunning() bool {
-	return t.running
+func (sw *Stopwatch) IsRunning() bool {
+	return sw.running
 }

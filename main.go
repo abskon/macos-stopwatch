@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	u "github.com/altsko/speedrun-timer/utils"
+	u "github.com/altsko/speedrun-stopwatch/utils"
 	"github.com/progrium/macdriver/cocoa"
 	"github.com/progrium/macdriver/core"
 	"github.com/progrium/macdriver/objc"
@@ -14,7 +14,7 @@ import (
 var KEYS map[State][]any = map[State][]any{
 	Ready: {u.MOD_SHIFT, u.MOD_CTRL, u.MOD_OPT}, // shift+ctrl+opt
 	Start: {u.MOD_CTRL, u.MOD_OPT, u.MOD_CMD},   // ctrl+opt+cmd
-	Stop:  {},                                   // none
+	Stop:  {nil},                                // none
 }
 
 type State int
@@ -28,40 +28,40 @@ const (
 func main() {
 	state := make(chan State, 1)
 	ks := u.NewKeySeq()
-	timer := u.NewTimer()
+	sw := u.NewStopwatch()
 
 	cocoa.TerminateAfterWindowsClose = false
 	app := cocoa.NSApp_WithDidLaunch(func(n objc.Object) {
 		item := cocoa.NSStatusBar_System().StatusItemWithLength(cocoa.NSVariableStatusItemLength)
 		item.Retain()
 		item.Button().SetFont_(customFont("Menlo", 16))
-		item.Button().SetTitle(timer.Str())
+		item.Button().SetTitle(sw.Str())
 
 		quit := make(chan struct{})
 		go func() {
-			ticker := time.NewTicker(7 * time.Millisecond) // refresh ui every 7ms (143fps)
+			ticker := time.NewTicker(1 * time.Millisecond) // refresh ui every 7ms (143fps)
 			defer ticker.Stop()                            // ui is also updated when state changes
 
 			for {
 				select {
 				case <-ticker.C:
-					if timer.IsRunning() {
+					if sw.IsRunning() {
 						core.Dispatch(func() {
-							item.Button().SetTitle(timer.Str())
+							item.Button().SetTitle(sw.Str())
 						})
 					}
 				case newState := <-state:
 					switch newState {
 					case Ready:
-						timer.Reset()
+						sw.Reset()
 					case Start:
-						timer.Start()
+						sw.Start()
 					case Stop:
-						timer.Stop()
+						sw.Stop()
 					}
 
 					core.Dispatch(func() {
-						item.Button().SetTitle(timer.Str())
+						item.Button().SetTitle(sw.Str())
 					})
 				case <-quit:
 					return
