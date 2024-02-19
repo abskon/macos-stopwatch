@@ -1,4 +1,4 @@
-A macOS menu bar timer written in Go with [macdriver](https://github.com/progrium/macdriver) for **#kindespeedrun**
+A macOS menu bar stopwatch written in Go with [macdriver](https://github.com/progrium/macdriver) for **#kindespeedrun**
 
 ### Usage
 
