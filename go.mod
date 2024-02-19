@@ -1,4 +1,4 @@
-module github.com/altsko/menubar-stopwatch
+module github.com/altsko/macos-stopwatch
 
 go 1.22.0
 

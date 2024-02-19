@@ -3,8 +3,8 @@ package main
 import (
 	"time"
 
-	"github.com/altsko/menubar-stopwatch/ui"
-	u "github.com/altsko/menubar-stopwatch/utils"
+	"github.com/altsko/macos-stopwatch/ui"
+	u "github.com/altsko/macos-stopwatch/utils"
 	"github.com/progrium/macdriver/cocoa"
 	"github.com/progrium/macdriver/core"
 	"github.com/progrium/macdriver/objc"
