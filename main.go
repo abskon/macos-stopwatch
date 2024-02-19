@@ -10,10 +10,11 @@ import (
 )
 
 // key/mod list: utils/utils.go
-var KEYS map[State][]any = map[State][]any{ // MOD uint64, KEY int
-	Ready: {u.MOD_SHIFT, u.MOD_CTRL, u.MOD_OPT},
-	Start: {u.MOD_CMD},   // start timer with a press of cmd
-	Stop:  {u.KEY_SPACE}, // stop timer with a press of space
+// MOD uint64, KEY int
+var KEYS map[State][]any = map[State][]any{
+	Ready: {u.MOD_SHIFT, u.MOD_CTRL, u.MOD_OPT}, // shift+ctrl+opt
+	Start: {u.MOD_CTRL, u.MOD_OPT, u.MOD_CMD},   // ctrl+opt+cmd
+	Stop:  {},                                   // none
 }
 
 type State int
@@ -38,8 +39,8 @@ func main() {
 
 		quit := make(chan struct{})
 		go func() {
-			ticker := time.NewTicker(11 * time.Millisecond) // refresh ui every 11ms (90fps)
-			defer ticker.Stop()                             // ui is also updated when state changes
+			ticker := time.NewTicker(7 * time.Millisecond) // refresh ui every 7ms (143fps)
+			defer ticker.Stop()                            // ui is also updated when state changes
 
 			for {
 				select {
