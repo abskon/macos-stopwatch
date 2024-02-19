@@ -59,6 +59,6 @@ func NewTextBox(initText string, fontName string) *TextBox {
 	}
 }
 
-func (tb *TextBox) Update(text string) {
+func (tb *TextBox) SetString(text string) {
 	tb.textView.SetString(text)
 }

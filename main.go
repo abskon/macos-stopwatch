@@ -53,7 +53,7 @@ func main() {
 					if sw.IsRunning() {
 						core.Dispatch(func() {
 							item.Button().SetTitle(sw.Str())
-							tb.Update(sw.Str())
+							tb.SetString(sw.Str())
 						})
 					}
 				case newState := <-state:
@@ -68,7 +68,7 @@ func main() {
 
 					core.Dispatch(func() {
 						item.Button().SetTitle(sw.Str())
-						tb.Update(sw.Str())
+						tb.SetString(sw.Str())
 					})
 				case <-quit:
 					return
