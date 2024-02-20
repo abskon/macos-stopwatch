@@ -52,7 +52,7 @@ func main() {
 
 		quit := make(chan struct{})
 		go func() {
-			ticker := time.NewTicker(7 * time.Millisecond) // refresh ui every 7ms (143fps)
+			ticker := time.NewTicker(3 * time.Millisecond) // refresh ui every 3ms
 			defer ticker.Stop()                            // ui is also updated when state changes
 
 			for {
@@ -85,17 +85,32 @@ func main() {
 		menu := cocoa.NSMenu_New()
 		quitItem := cocoa.NSMenuItem_New()
 		quitItem.SetTitle("Quit")
+
 		quitItem.SetAction(objc.Sel("terminate:"))
 
 		openItem := cocoa.NSMenuItem_New()
 		openItem.SetTitle("Open")
+
+		closeItem := cocoa.NSMenuItem_New()
+		closeItem.SetTitle("Close")
+
+		var appControllerClass = objc.NewClass("AppController", "NSObject")
+		appControllerClass.AddMethod("open:", (*ui.AppController).Open)
+		appControllerClass.AddMethod("close:", (*ui.AppController).Close)
+		objc.RegisterClass(appControllerClass)
+		controller := objc.GetClass("AppController").Alloc().Init()
+		openItem.SetTarget(controller)
 		openItem.SetAction(objc.Sel("open:"))
+		closeItem.SetTarget(controller)
+		closeItem.SetAction(objc.Sel("close:"))
 
 		menu.AddItem(quitItem)
 		menu.AddItem(openItem)
+		menu.AddItem(closeItem)
 		item.SetMenu(menu)
 
-		cocoa.NSApp().SetActivationPolicy(cocoa.NSApplicationActivationPolicyRegular)
+		cocoa.NSApp().SetActivationPolicy(cocoa.NSApplicationActivationPolicyAccessory)
+		// cocoa.NSApp().SetActivationPolicy(cocoa.NSApplicationActivationPolicyRegular)
 		cocoa.NSApp().ActivateIgnoringOtherApps(true)
 		cocoa.NSApp().Run()
 	})

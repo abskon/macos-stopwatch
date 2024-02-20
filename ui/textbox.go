@@ -3,12 +3,13 @@ package ui
 import (
 	"github.com/progrium/macdriver/cocoa"
 	"github.com/progrium/macdriver/core"
+	"github.com/progrium/macdriver/objc"
 )
 
 type TextBox struct {
 	view     cocoa.NSView
 	textView cocoa.NSTextView
-	Window   cocoa.NSWindow
+	window   cocoa.NSWindow
 }
 
 func NewTextBox(initText string, fontName string) *TextBox {
@@ -55,10 +56,18 @@ func NewTextBox(initText string, fontName string) *TextBox {
 	return &TextBox{
 		view:     c,
 		textView: t,
-		Window:   w,
+		window:   w,
 	}
 }
 
 func (tb *TextBox) SetString(text string) {
 	tb.textView.SetString(text)
+}
+
+func (tb *TextBox) Open(sender objc.Object) {
+	tb.window.MakeKeyAndOrderFront(sender)
+}
+
+func (tb *TextBox) Close(sender objc.Object) {
+	tb.window.OrderOut(sender)
 }
