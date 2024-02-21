@@ -52,7 +52,7 @@ func main() {
 
 		quit := make(chan struct{})
 		go func() {
-			ticker := time.NewTicker(7 * time.Millisecond) // refresh ui every 7ms (143fps)
+			ticker := time.NewTicker(3 * time.Millisecond) // refresh ui every 3ms
 			defer ticker.Stop()                            // ui is also updated when state changes
 
 			for {
