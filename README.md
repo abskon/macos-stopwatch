@@ -1,4 +1,4 @@
-A macOS stopwatch written in Go with [macdriver](https://github.com/progrium/macdriver) for **#kindespeedrun**
+A macOS stopwatch written in Go with [macdriver](https://github.com/progrium/macdriver) during **#kindespeedrun** event
 
 ### Usage
 
