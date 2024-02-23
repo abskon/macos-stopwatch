@@ -1,4 +1,4 @@
-A macOS menu bar stopwatch written in Go with [macdriver](https://github.com/progrium/macdriver) for **#kindespeedrun**
+A macOS stopwatch written in Go with [macdriver](https://github.com/progrium/macdriver) for **#kindespeedrun**
 
 ### Usage
 
@@ -10,5 +10,6 @@ make build
 
 ### Todo
 
+- [ ] Controller for where and how to display
 - [ ] Custom key bindings for each state from menu
 - [ ] Config file for key bindings
