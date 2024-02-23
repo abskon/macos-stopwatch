@@ -27,7 +27,7 @@ const (
 )
 
 func main() {
-	fontName := "Jetbrains Mono"
+	fontName := "Menlo"
 
 	state := make(chan State, 1)
 	ks := u.NewKeySeq()
@@ -39,13 +39,13 @@ func main() {
 		item.Retain()
 
 		item.Button().SetFont_(customFont(fontName, 14))
-		item.Button().SetTitle(sw.Str())
+		item.Button().SetTitle("Stopwatch")
 
 		tb := ui.NewTextBox(sw.Str(), fontName)
 
 		updateUI := func() {
 			core.Dispatch(func() {
-				item.Button().SetTitle(sw.Str())
+				// item.Button().SetTitle(sw.Str())
 				tb.SetString(sw.Str())
 			})
 		}
@@ -87,12 +87,7 @@ func main() {
 		quitItem.SetTitle("Quit")
 		quitItem.SetAction(objc.Sel("terminate:"))
 
-		openItem := cocoa.NSMenuItem_New()
-		openItem.SetTitle("Open")
-		openItem.SetAction(objc.Sel("open:"))
-
 		menu.AddItem(quitItem)
-		menu.AddItem(openItem)
 		item.SetMenu(menu)
 
 		cocoa.NSApp().SetActivationPolicy(cocoa.NSApplicationActivationPolicyRegular)
