@@ -10,6 +10,6 @@ make build
 
 ### Todo
 
-- [ ] Controller for where and how to display
-- [ ] Custom key bindings for each state from menu
-- [ ] Config file for key bindings
+- [ ] UI Controller
+- [ ] Custom key bindings
+- [ ] Config file
